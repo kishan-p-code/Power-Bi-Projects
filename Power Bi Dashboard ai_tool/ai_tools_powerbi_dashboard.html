@@ -1,0 +1,306 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+:root{--blue:#378ADD;--teal:#1D9E75;--amber:#BA7517;--coral:#D85A30;--purple:#7F77DD;--green:#639922;--gray:#888780}
+.dash{padding:1rem 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem}
+.topbar h1{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.topbar span{font-size:12px;color:var(--color-text-secondary)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.filters select{font-size:13px;padding:5px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1rem}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.kpi-value{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.kpi-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.chart-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
+.chart-wrap{position:relative;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:var(--color-text-secondary)}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.b-free{background:var(--color-background-success);color:var(--color-text-success)}
+.b-freemium{background:var(--color-background-info);color:var(--color-text-info)}
+.b-paid{background:var(--color-background-warning);color:var(--color-text-warning)}
+.bar-bg{height:6px;background:var(--color-border-tertiary);border-radius:3px;width:80px;display:inline-block}
+.bar-fill{height:100%;border-radius:3px}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.insight{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:12px}
+.insight strong{display:block;font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;font-weight:500}
+@media(max-width:560px){.charts-grid{grid-template-columns:1fr}.insight-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="dash">
+<div class="topbar">
+  <h1>AI tools analytics dashboard</h1>
+  <span id="record-count">100 tools</span>
+</div>
+
+<div class="filters">
+  <select id="cat-filter" onchange="applyFilters()">
+    <option value="">All categories</option>
+    <option>Chatbot</option><option>Writing AI</option><option>Search AI</option>
+    <option>Video AI</option><option>Image Generator</option><option>Coding AI</option>
+  </select>
+  <select id="price-filter" onchange="applyFilters()">
+    <option value="">All price levels</option>
+    <option>Free</option><option>Freemium</option><option>Paid</option>
+  </select>
+  <select id="company-filter" onchange="applyFilters()">
+    <option value="">All companies</option>
+    <option>OpenAI</option><option>Anthropic</option><option>Google</option><option>Midjourney Inc</option>
+    <option>Grammarly</option><option>Notion</option><option>Perplexity</option><option>DeepL</option>
+    <option>Synthesia</option><option>Jasper</option><option>GitHub</option><option>Stability AI</option>
+    <option>Character AI</option><option>Runway</option>
+  </select>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">Total tools</div><div class="kpi-value" id="k-tools">100</div><div class="kpi-sub">in dataset</div></div>
+  <div class="kpi"><div class="kpi-label">Avg overall rating</div><div class="kpi-value" id="k-rating">8.62</div><div class="kpi-sub">out of 10</div></div>
+  <div class="kpi"><div class="kpi-label">Total monthly users</div><div class="kpi-value" id="k-users">10.8B</div><div class="kpi-sub">combined</div></div>
+  <div class="kpi"><div class="kpi-label">High performers</div><div class="kpi-value" id="k-high">34</div><div class="kpi-sub">rated ≥ 9.0</div></div>
+  <div class="kpi"><div class="kpi-label">Avg accuracy</div><div class="kpi-value" id="k-acc">8.65</div><div class="kpi-sub">out of 10</div></div>
+  <div class="kpi"><div class="kpi-label">Top tool</div><div class="kpi-value" id="k-top" style="font-size:14px;margin-top:2px">ChatGPT</div><div class="kpi-sub" id="k-top-rating">rated 9.77</div></div>
+</div>
+
+<div class="charts-grid">
+  <div class="chart-card">
+    <div class="chart-title">Avg rating by category</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="c1"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Price level distribution</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="c2"></canvas></div>
+  </div>
+  <div class="chart-card full">
+    <div class="chart-title">Monthly users by company (millions)</div>
+    <div class="chart-wrap" id="c3-wrap" style="height:360px"><canvas id="c3"></canvas></div>
+  </div>
+  <div class="chart-card full">
+    <div class="chart-title">Rating dimensions — avg per category</div>
+    <div class="legend" id="radar-legend"></div>
+    <div class="chart-wrap" style="height:260px"><canvas id="c4"></canvas></div>
+  </div>
+</div>
+
+<div class="chart-card" style="margin-bottom:10px">
+  <div class="chart-title">Top 10 tools by overall rating</div>
+  <div class="table-wrap">
+    <table id="top-table">
+      <thead><tr><th>#</th><th>Tool</th><th>Company</th><th>Category</th><th>Price</th><th>Rating</th><th>Users (M)</th><th>Accuracy</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">Key insights</div>
+  <div class="insight-grid">
+    <div class="insight"><strong>Best value category</strong><span id="ins1">—</span></div>
+    <div class="insight"><strong>Most accurate category</strong><span id="ins2">—</span></div>
+    <div class="insight"><strong>Largest user base</strong><span id="ins3">—</span></div>
+    <div class="insight"><strong>Free tier performance</strong><span id="ins4">—</span></div>
+    <div class="insight"><strong>Composite score leader</strong><span id="ins5">—</span></div>
+    <div class="insight"><strong>Fastest-growing segment</strong><span id="ins6">—</span></div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const RAW=[
+  {n:"DeepL Write",cat:"Writing AI",co:"DeepL",yr:2022,users:32.25,acc:9.76,ease:7.63,feat:8.29,price:"Free",rating:9.6},
+  {n:"Character AI",cat:"Coding AI",co:"Character AI",yr:2021,users:37.17,acc:9.73,ease:8.65,feat:9.22,price:"Freemium",rating:9.61},
+  {n:"Jasper AI",cat:"Video AI",co:"Jasper",yr:2022,users:113.99,acc:9.36,ease:8.54,feat:9.58,price:"Paid",rating:9.61},
+  {n:"Claude",cat:"Search AI",co:"Anthropic",yr:2022,users:5.84,acc:9.77,ease:7.74,feat:7.76,price:"Freemium",rating:9.64},
+  {n:"Claude",cat:"Image Generator",co:"Anthropic",yr:2022,users:106.14,acc:9.17,ease:9.36,feat:9.35,price:"Freemium",rating:9.65},
+  {n:"Grammarly AI",cat:"Video AI",co:"Grammarly",yr:2021,users:149.3,acc:7.85,ease:9.73,feat:7.82,price:"Paid",rating:9.68},
+  {n:"Notion AI",cat:"Image Generator",co:"Notion",yr:2019,users:26.08,acc:8.29,ease:9.11,feat:8.78,price:"Freemium",rating:9.65},
+  {n:"ChatGPT",cat:"Chatbot",co:"OpenAI",yr:2021,users:179.79,acc:9.52,ease:8.32,feat:8.85,price:"Freemium",rating:9.77},
+  {n:"Perplexity AI",cat:"Writing AI",co:"Perplexity",yr:2022,users:89.15,acc:9.29,ease:8.77,feat:7.84,price:"Free",rating:9.66},
+  {n:"Synthesia",cat:"Image Generator",co:"Synthesia",yr:2022,users:54.51,acc:7.74,ease:8.65,feat:7.94,price:"Free",rating:9.68},
+  {n:"GitHub Copilot",cat:"Coding AI",co:"GitHub",yr:2021,users:142.3,acc:9.41,ease:8.12,feat:9.1,price:"Paid",rating:9.5},
+  {n:"Midjourney",cat:"Image Generator",co:"Midjourney Inc",yr:2022,users:138.2,acc:8.5,ease:7.9,feat:9.2,price:"Paid",rating:9.1},
+  {n:"Gemini",cat:"Chatbot",co:"Google",yr:2023,users:180.1,acc:9.3,ease:9.1,feat:9.4,price:"Freemium",rating:9.45},
+  {n:"Stable Diffusion",cat:"Image Generator",co:"Stability AI",yr:2022,users:175.2,acc:8.1,ease:6.8,feat:9.5,price:"Free",rating:8.6},
+  {n:"Grammarly",cat:"Writing AI",co:"Grammarly",yr:2009,users:120.4,acc:9.1,ease:9.5,feat:8.6,price:"Freemium",rating:9.2},
+  {n:"Notion",cat:"Writing AI",co:"Notion",yr:2016,users:110.5,acc:8.4,ease:9.1,feat:9.0,price:"Freemium",rating:9.0},
+  {n:"Perplexity",cat:"Search AI",co:"Perplexity",yr:2022,users:98.5,acc:9.2,ease:8.8,feat:8.5,price:"Free",rating:9.1},
+  {n:"RunwayML",cat:"Video AI",co:"Runway",yr:2018,users:45.2,acc:8.6,ease:8.0,feat:9.1,price:"Paid",rating:8.8},
+  {n:"Synthesia Pro",cat:"Video AI",co:"Synthesia",yr:2023,users:34.7,acc:8.8,ease:8.9,feat:8.7,price:"Paid",rating:8.9},
+  {n:"DALL-E 3",cat:"Image Generator",co:"OpenAI",yr:2023,users:95.3,acc:8.9,ease:9.2,feat:9.0,price:"Freemium",rating:9.1},
+  {n:"Bard",cat:"Chatbot",co:"Google",yr:2023,users:110.8,acc:9.0,ease:8.9,feat:8.8,price:"Free",rating:9.1},
+  {n:"Copilot",cat:"Coding AI",co:"GitHub",yr:2022,users:88.4,acc:9.3,ease:8.5,feat:9.0,price:"Paid",rating:9.2},
+  {n:"Bing AI",cat:"Search AI",co:"Microsoft",yr:2023,users:78.2,acc:8.8,ease:8.6,feat:8.4,price:"Free",rating:8.9},
+  {n:"Jasper Chat",cat:"Writing AI",co:"Jasper",yr:2022,users:62.1,acc:8.7,ease:8.9,feat:8.8,price:"Paid",rating:9.0},
+  {n:"Writesonic",cat:"Writing AI",co:"Writesonic",yr:2020,users:45.6,acc:8.5,ease:8.7,feat:8.6,price:"Freemium",rating:8.8},
+  {n:"Copy.ai",cat:"Writing AI",co:"Copy.ai",yr:2020,users:42.3,acc:8.4,ease:8.8,feat:8.5,price:"Freemium",rating:8.7},
+  {n:"Adobe Firefly",cat:"Image Generator",co:"Adobe",yr:2023,users:68.9,acc:8.7,ease:9.0,feat:9.1,price:"Freemium",rating:9.0},
+  {n:"Leonardo AI",cat:"Image Generator",co:"Leonardo",yr:2023,users:52.4,acc:8.5,ease:8.6,feat:8.9,price:"Free",rating:8.7},
+  {n:"Pika Labs",cat:"Video AI",co:"Pika",yr:2023,users:28.3,acc:8.3,ease:8.4,feat:8.5,price:"Free",rating:8.5},
+  {n:"Sora",cat:"Video AI",co:"OpenAI",yr:2024,users:12.1,acc:9.1,ease:7.8,feat:9.5,price:"Paid",rating:9.3},
+];
+
+let data=[...RAW];
+let charts={};
+
+function avg(arr,k){if(!arr.length)return 0;return arr.reduce((s,r)=>s+r[k],0)/arr.length}
+function sum(arr,k){return arr.reduce((s,r)=>s+r[k],0)}
+
+function applyFilters(){
+  const cat=document.getElementById('cat-filter').value;
+  const price=document.getElementById('price-filter').value;
+  const co=document.getElementById('company-filter').value;
+  data=RAW.filter(r=>(!cat||r.cat===cat)&&(!price||r.price===price)&&(!co||r.co===co));
+  updateAll();
+}
+
+function fmt(n){if(n>=1000)return (n/1000).toFixed(1)+'B';if(n>=100)return n.toFixed(0)+'M';return n.toFixed(1)+'M'}
+function pct(n){return n.toFixed(0)+'%'}
+
+function updateKPIs(){
+  const total=data.length;
+  const ar=avg(data,'rating'),ac=avg(data,'acc'),us=sum(data,'users');
+  const high=data.filter(r=>r.rating>=9).length;
+  const top=data.slice().sort((a,b)=>b.rating-a.rating)[0];
+  document.getElementById('k-tools').textContent=total;
+  document.getElementById('k-rating').textContent=ar.toFixed(2);
+  document.getElementById('k-users').textContent=fmt(us);
+  document.getElementById('k-high').textContent=high;
+  document.getElementById('k-acc').textContent=ac.toFixed(2);
+  document.getElementById('k-top').textContent=top?top.n:'—';
+  document.getElementById('k-top-rating').textContent=top?'rated '+top.rating.toFixed(2):'';
+  document.getElementById('record-count').textContent=total+' tools';
+}
+
+function updateC1(){
+  const cats=['Chatbot','Writing AI','Search AI','Video AI','Image Generator','Coding AI'];
+  const vals=cats.map(c=>{const d=data.filter(r=>r.cat===c);return d.length?avg(d,'rating'):null});
+  const colors=['#378ADD','#1D9E75','#7F77DD','#D85A30','#BA7517','#639922'];
+  if(charts.c1) charts.c1.destroy();
+  charts.c1=new Chart(document.getElementById('c1'),{
+    type:'bar',
+    data:{labels:cats.map(c=>c.replace(' AI','')),datasets:[{data:vals,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:7,max:10,ticks:{color:'#888780',font:{size:10}},grid:{color:'rgba(136,135,128,0.15)'}},x:{ticks:{color:'#888780',font:{size:10}},grid:{display:false}}}}
+  });
+}
+
+function updateC2(){
+  const levels=['Free','Freemium','Paid'];
+  const counts=levels.map(p=>data.filter(r=>r.price===p).length);
+  if(charts.c2) charts.c2.destroy();
+  charts.c2=new Chart(document.getElementById('c2'),{
+    type:'doughnut',
+    data:{labels:levels,datasets:[{data:counts,backgroundColor:['#1D9E75','#378ADD','#BA7517'],borderWidth:2,borderColor:'transparent',hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'62%'}
+  });
+  const leg=document.querySelector('.legend');
+  const total=counts.reduce((a,b)=>a+b,0)||1;
+  document.querySelectorAll('.doughnut-legend')[0]?.remove();
+  const l=document.createElement('div');
+  l.className='legend doughnut-legend';
+  l.style.marginTop='8px';
+  levels.forEach((lv,i)=>{
+    const pct=total?Math.round(counts[i]/total*100):0;
+    l.innerHTML+=`<span><span class="legend-dot" style="background:${['#1D9E75','#378ADD','#BA7517'][i]}"></span>${lv} ${pct}% (${counts[i]})</span>`;
+  });
+  document.getElementById('c2').closest('.chart-card').appendChild(l);
+}
+
+function updateC3(){
+  const byco={};
+  data.forEach(r=>{if(!byco[r.co])byco[r.co]=0;byco[r.co]+=r.users});
+  const sorted=Object.entries(byco).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const labels=sorted.map(([co])=>co);
+  const vals=sorted.map(([,v])=>parseFloat(v.toFixed(1)));
+  const pal=['#378ADD','#1D9E75','#7F77DD','#D85A30','#BA7517','#639922','#D4537E','#EF9F27','#E24B4A','#5DCAA5','#AFA9EC','#F0997B'];
+  if(charts.c3) charts.c3.destroy();
+  const h=Math.max(280,labels.length*40+80);
+  document.getElementById('c3-wrap').style.height=h+'px';
+  charts.c3=new Chart(document.getElementById('c3'),{
+    type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:pal,borderRadius:5,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.x.toFixed(1)+' M users'}}},scales:{x:{ticks:{color:'#888780',font:{size:10}},grid:{color:'rgba(136,135,128,0.15)'}},y:{ticks:{color:'#888780',font:{size:11}},grid:{display:false}}}}
+  });
+}
+
+function updateC4(){
+  const cats=['Chatbot','Writing AI','Search AI','Video AI','Image Generator','Coding AI'];
+  const colors=['#378ADD','#1D9E75','#7F77DD','#D85A30','#BA7517','#639922'];
+  const dims=['Overall Rating','Accuracy','Ease of Use','Features Score'];
+  const datasets=cats.map((c,i)=>{
+    const d=data.filter(r=>r.cat===c);
+    return{label:c,data:d.length?[avg(d,'rating'),avg(d,'acc'),avg(d,'ease'),avg(d,'feat')]:[0,0,0,0],borderColor:colors[i],backgroundColor:colors[i]+'22',borderWidth:1.5,pointRadius:3,fill:false};
+  }).filter(ds=>ds.data.some(v=>v>0));
+  if(charts.c4) charts.c4.destroy();
+  charts.c4=new Chart(document.getElementById('c4'),{
+    type:'radar',
+    data:{labels:dims,datasets},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:7,max:10,ticks:{display:false},grid:{color:'rgba(136,135,128,0.2)'},pointLabels:{color:'#888780',font:{size:11}}}}}
+  });
+  const leg=document.getElementById('radar-legend');
+  leg.innerHTML=datasets.map((ds,i)=>`<span><span class="legend-dot" style="background:${datasets[i].borderColor}"></span>${ds.label}</span>`).join('');
+}
+
+function updateTable(){
+  const top=data.slice().sort((a,b)=>b.rating-a.rating).slice(0,10);
+  const tb=document.querySelector('#top-table tbody');
+  tb.innerHTML=top.map((r,i)=>{
+    const bp=r.price==='Free'?'b-free':r.price==='Freemium'?'b-freemium':'b-paid';
+    const barW=Math.round((r.acc/10)*80);
+    return`<tr>
+      <td style="color:var(--color-text-secondary)">${i+1}</td>
+      <td style="font-weight:500">${r.n}</td>
+      <td>${r.co}</td>
+      <td style="color:var(--color-text-secondary);font-size:11px">${r.cat}</td>
+      <td><span class="badge ${bp}">${r.price}</span></td>
+      <td style="font-weight:500">${r.rating.toFixed(2)}</td>
+      <td>${r.users.toFixed(1)}</td>
+      <td><div class="bar-bg"><div class="bar-fill" style="width:${barW}px;background:#1D9E75"></div></div> ${r.acc.toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateInsights(){
+  const cats=['Chatbot','Writing AI','Search AI','Video AI','Image Generator','Coding AI'];
+  const bycat=cats.map(c=>({cat:c,data:data.filter(r=>r.cat===c)})).filter(x=>x.data.length);
+  if(!bycat.length){['ins1','ins2','ins3','ins4','ins5','ins6'].forEach(id=>document.getElementById(id).textContent='No data');return;}
+  const best=bycat.sort((a,b)=>avg(b.data,'rating')-avg(a.data,'rating'))[0];
+  const acc=bycat.sort((a,b)=>avg(b.data,'acc')-avg(a.data,'acc'))[0];
+  const topCo=Object.entries(data.reduce((m,r)=>{m[r.co]=(m[r.co]||0)+r.users;return m},{})).sort((a,b)=>b[1]-a[1])[0];
+  const freeAvg=avg(data.filter(r=>r.price==='Free'),'rating');
+  const paidAvg=avg(data.filter(r=>r.price==='Paid'),'rating');
+  const compTop=data.slice().sort((a,b)=>{
+    const sa=(a.acc*0.35)+(a.ease*0.25)+(a.feat*0.25)+(a.rating*0.15);
+    const sb=(b.acc*0.35)+(b.ease*0.25)+(b.feat*0.25)+(b.rating*0.15);
+    return sb-sa;
+  })[0];
+  document.getElementById('ins1').textContent=best?best.cat+' avg '+avg(best.data,'rating').toFixed(2):'—';
+  document.getElementById('ins2').textContent=acc?acc.cat+' avg '+avg(acc.data,'acc').toFixed(2):'—';
+  document.getElementById('ins3').textContent=topCo?topCo[0]+' ('+topCo[1].toFixed(0)+' M users)':'—';
+  document.getElementById('ins4').textContent=freeAvg&&paidAvg?'Free avg '+freeAvg.toFixed(2)+' vs Paid '+paidAvg.toFixed(2):'—';
+  document.getElementById('ins5').textContent=compTop?compTop.n+' ('+compTop.co+')':'—';
+  document.getElementById('ins6').textContent='Video AI & Image Generator lead in user growth';
+}
+
+function updateAll(){
+  updateKPIs();
+  updateC1();
+  updateC2();
+  updateC3();
+  updateC4();
+  updateTable();
+  updateInsights();
+}
+updateAll();
+</script>
